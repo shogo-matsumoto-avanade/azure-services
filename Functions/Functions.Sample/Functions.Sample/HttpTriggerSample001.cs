@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Functions.Sample
 {
@@ -15,10 +16,14 @@ namespace Functions.Sample
         }
 
         [Function("HttpTriggerSample001")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
-            return new OkObjectResult("Welcome to Azure Functions!");
+            var name = req.Query["name"].ToString();
+            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            dynamic? data = JsonConvert.DeserializeObject(requestBody);
+            name = name ?? data?.name;
+            return name != null ? new OkObjectResult($"Welcome to Azure Functions! {name}.") : new OkObjectResult($"Please pass a name on the query string or in the request Body");
         }
     }
 }
