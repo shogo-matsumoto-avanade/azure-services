@@ -19,8 +19,8 @@ namespace Functions.Sample
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
-            var name = req.Query["name"].ToString();
-            var requestBody = new StreamReader(req.Body).ReadToEnd();
+            var name = (string?)req.Query["name"];
+            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic? data = JsonConvert.DeserializeObject(requestBody);
             name = name ?? data?.name;
             return name != null ? new OkObjectResult($"Welcome to Azure Functions! {name}.") : new BadRequestObjectResult($"Please pass a name on the query string or in the request Body");
