@@ -23,7 +23,7 @@ namespace Functions.Sample
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic? data = JsonConvert.DeserializeObject(requestBody);
             name = name ?? data?.name;
-            return name != null ? new OkObjectResult($"Welcome to Azure Functions! {name}.") : new OkObjectResult($"Please pass a name on the query string or in the request Body");
+            return !string.IsNullOrEmpty(name) ? new OkObjectResult($"Welcome to Azure Functions! {name}.") : new BadRequestObjectResult($"Please pass a name on the query string or in the request Body");
         }
     }
 }
